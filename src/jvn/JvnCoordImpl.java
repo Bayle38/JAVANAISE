@@ -21,16 +21,12 @@ public class JvnCoordImpl
 	 * TODO: Créer un tableau contenant les jvn objects, leurs id, leurs noms, et la liste des serveurs qui ont besoin d'etre informés de la modification de la ressource.
 	 * 
 	 */
-	private JvnObject dernier;
-	private HashMap<String, JvnObject> table;
 
   /**
   * Default constructor
   * @throws JvnException
   **/
 	private JvnCoordImpl() throws Exception {
-		table = new HashMap<String, JvnObject>();
-		dernier=null;
 		// to be completed
 	}
 
@@ -42,7 +38,7 @@ public class JvnCoordImpl
   public int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
     // to be completed 
-    return dernier.jvnGetObjectId();
+    return 0;
   }
   
   /**
@@ -56,7 +52,6 @@ public class JvnCoordImpl
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
     // to be completed
-	table.put(jon, jo);
   }
   
   /**
