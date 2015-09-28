@@ -51,7 +51,8 @@ public class JvnServerImpl
 	**/
 	public  void jvnTerminate()
 	throws jvn.JvnException {
-    // to be completed 
+    // to be completed
+		
 	} 
 	
 	/**
@@ -62,7 +63,8 @@ public class JvnServerImpl
 	public  JvnObject jvnCreateObject(Serializable o)
 	throws jvn.JvnException { 
 		// to be completed 
-		return null; 
+		JvnObject jo = new JvnObjectImpl(o);
+		return jo; 
 	}
 	
 	/**
