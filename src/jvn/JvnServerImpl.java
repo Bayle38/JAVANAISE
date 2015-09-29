@@ -8,7 +8,11 @@
 
 package jvn;
 
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.io.*;
 
 
@@ -16,10 +20,16 @@ import java.io.*;
 public class JvnServerImpl 	
               extends UnicastRemoteObject 
 							implements JvnLocalServer, JvnRemoteServer{
-	
   // A JVN server is managed as a singleton 
 	private static JvnServerImpl js = null;
-
+	// Référence vers le coordinateur
+	JvnRemoteCoord coordinateur;
+	Registry registryLocal;
+	/** Arguments pour le cache d'objet
+	 * 		cache liste des JvnObect
+	 * */
+	HashMap<Integer,JvnObject> cache;
+	//
   /**
   * Default constructor
   * @throws JvnException
@@ -27,8 +37,13 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		// to be completed
+		cache = new HashMap<Integer, JvnObject>();
+        JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 10000); // Génère un stub vers notre service.
+        registryLocal = LocateRegistry.createRegistry(10000);
+        registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
+        Registry registry2 = LocateRegistry.getRegistry("127.0.0.1", 10000); //l'adresse peut etre changée par celle du coordinateur. 
+        coordinateur = (JvnRemoteCoord) registry2.lookup("coord");
 	}
-	
   /**
     * Static method allowing an application to get a reference to 
     * a JVN server instance
@@ -52,7 +67,7 @@ public class JvnServerImpl
 	public  void jvnTerminate()
 	throws jvn.JvnException {
     // to be completed
-		
+		cache = null;
 	} 
 	
 	/**
@@ -75,11 +90,17 @@ public class JvnServerImpl
 	**/
 	public  void jvnRegisterObject(String jon, JvnObject jo)
 	throws jvn.JvnException {
-		// to be completed 
+		// to be completed
+		try {
+			coordinateur.jvnRegisterObject(jon, jo, js);
+		} catch (RemoteException e) {
+			// TODO : Gérer les pannes coordinateur. 
+			e.printStackTrace();
+		}
 	}
 	
 	/**
-	* Provide the reference of a JVN object beeing given its symbolic name
+	* Provide the reference of a JVN object being given its symbolic name
 	* @param jon : the JVN object name
 	* @return the JVN object 
 	* @throws JvnException
@@ -87,6 +108,12 @@ public class JvnServerImpl
 	public  JvnObject jvnLookupObject(String jon)
 	throws jvn.JvnException {
     // to be completed 
+		try {
+			coordinateur.jvnLookupObject(jon, js);
+		} catch (RemoteException e) {
+			// TODO Gérer les pannes coordinateur.
+			e.printStackTrace();
+		}
 		return null;
 	}	
 	
@@ -98,9 +125,14 @@ public class JvnServerImpl
 	**/
    public Serializable jvnLockRead(int joi)
 	 throws JvnException {
-		// to be completed 
-		return null;
-
+	   try {
+		coordinateur.jvnLockRead(joi, js);
+	} catch (RemoteException e) {
+		// TODO : Gérer les pannes coordinateur.
+		e.printStackTrace();
+	}
+	   
+	   return null;
 	}	
 	/**
 	* Get a Write lock on a JVN object 
@@ -110,7 +142,12 @@ public class JvnServerImpl
 	**/
    public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
-		// to be completed 
+		try {
+			coordinateur.jvnLockWrite(joi, js);
+		} catch (RemoteException e) {
+			// TODO : Gérer les pannes coordinateur.
+			e.printStackTrace();
+		} 
 		return null;
 	}	
 
@@ -125,6 +162,7 @@ public class JvnServerImpl
   public void jvnInvalidateReader(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException {
 		// to be completed 
+	  	cache.get(joi).jvnInvalidateReader();
 	};
 	    
 	/**
@@ -135,7 +173,7 @@ public class JvnServerImpl
 	**/
   public Serializable jvnInvalidateWriter(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException { 
-		// to be completed 
+	  	cache.get(joi).jvnInvalidateWriter();
 		return null;
 	};
 	
@@ -147,7 +185,7 @@ public class JvnServerImpl
 	**/
    public Serializable jvnInvalidateWriterForReader(int joi)
 	 throws java.rmi.RemoteException,jvn.JvnException { 
-		// to be completed 
+		cache.get(joi).jvnInvalidateWriterForReader(); 
 		return null;
 	 };
 
