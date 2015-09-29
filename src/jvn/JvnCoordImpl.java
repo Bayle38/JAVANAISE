@@ -9,11 +9,14 @@
 package jvn;
 
 import java.rmi.registry.LocateRegistry;
+import jvn.JvnRemoteCoord;
+import jvn.DataStore;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.io.Serializable;
+
 
 
 public class JvnCoordImpl 	
@@ -91,12 +94,11 @@ public class JvnCoordImpl
   **/
   public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
-	  JvnObject res= new JvnObject();
+	  JvnObject res= null;
 		if(tableNomId.containsKey(jon)){
 			res=  (JvnObject)tableIdData.get(tableNomId.get(jon)).getObjDistant();
 		}
 		return res; 
-    return null;
   }
   
   /**
@@ -117,7 +119,9 @@ public class JvnCoordImpl
 	 				//verrou directement accordé
 	 				VerrouListeClients l= tableIdData.get(joi).getListeVerrouClients();
 	 				l.setVerrou(Verrou.R);
-	 				l.setListeClients(new ArrayList<JvnRemoteServer>(js));
+	 				ArrayList<JvnRemoteServer> list= new ArrayList<>();
+	 				list.add(js);
+	 				l.setListeClients(list);
 	 				//TODO
 	 				break;
 	 			case R:
@@ -139,7 +143,6 @@ public class JvnCoordImpl
 	 		}
 	 		
 	 		return null;
-    return null;
    }
 
   /**
