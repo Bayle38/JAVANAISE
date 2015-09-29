@@ -2,3 +2,8 @@
 ./build/*/*
 *.class
 .metadata/*
+.classpath
+build*
+java.policy
+.settings
+.DS_Store
