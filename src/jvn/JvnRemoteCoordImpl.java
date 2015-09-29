@@ -3,6 +3,7 @@ package jvn;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -78,6 +79,9 @@ public class JvnRemoteCoordImpl implements JvnRemoteCoord {
 			switch (v) {
 			case NL:
 				//verrou directement accordé
+				VerrouListeClients l= tableIdData.get(joi).getListeVerrouClients();
+				l.setVerrou(Verrou.R);
+				l.setListeClients(new ArrayList<>(js));
 				//TODO
 				break;
 			case R:
@@ -93,6 +97,8 @@ public class JvnRemoteCoordImpl implements JvnRemoteCoord {
 				break;
 			}
 			//quel(s) client(s) possède(nt) un verrou sur la resource?
+			
+		}else{
 			
 		}
 		
