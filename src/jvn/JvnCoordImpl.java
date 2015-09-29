@@ -66,8 +66,9 @@ public class JvnCoordImpl
   * @param js  : the remote reference of the JVNServer
   * @throws java.rmi.RemoteException,JvnException
   **/
-  public void jvnRegisterObject(String jon, JvnObject jo, int joi, JvnRemoteServer js)
+  public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
+	int joi= jvnGetObjectId();
 	//on vérifie que l'objet est bien identifié dans la table 
 	if (tableNomId.containsValue(joi)){
 		//ajout du nouveau nom symbolique associé à la resource
