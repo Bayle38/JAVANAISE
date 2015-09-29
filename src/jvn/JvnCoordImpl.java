@@ -121,7 +121,7 @@ public class JvnCoordImpl
 	 				//TODO
 	 				break;
 	 			case R:
-	 				//verrou compatible avec les uatres verrous
+	 				//verrou compatible avec les autres verrous
 	 				//TODO
 	 				break;
 	 			case W:
