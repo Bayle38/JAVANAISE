@@ -7,6 +7,7 @@ public class JvnObjectImpl implements JvnObject {
 	Serializable obj;
 	public JvnObjectImpl(Serializable o) {
 		obj = o;
+		;;
 	}
 
 	public void jvnLockRead() throws JvnException {
