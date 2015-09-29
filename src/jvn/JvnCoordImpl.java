@@ -119,14 +119,16 @@ public class JvnCoordImpl
 	 			case NL:
 	 				//verrou directement accordé
 	 				VerrouListeClients l= tableIdData.get(joi).getListeVerrouClients();
-	 				l.setVerrou(Verrou.R);
+	 				l.setVerrou(Verrou.R); //verrou en lecture
 	 				ArrayList<JvnRemoteServer> list= new ArrayList<>();
 	 				list.add(js);
 	 				l.setListeClients(list);
-	 				//TODO
+	 				tableIdData.get(joi).setListeVerrouClients(l); //l'utilisateur est ajouté en tant que possésseur du verrou
+	 				
 	 				break;
 	 			case R:
-	 				//verrou compatible avec les autres verrous
+	 				//verrou compatible avec les autres verrous, mise à jour de la liste des clients ayant le verrou
+	 				ArrayList<JvnRemoteServer> list= tableIdData.get(joi).getListeVerrouClients()
 	 				//TODO
 	 				break;
 	 			case W:
@@ -137,7 +139,9 @@ public class JvnCoordImpl
 	 				//TODO
 	 				break;
 	 			}
-	 			//quel(s) client(s) possède(nt) un verrou sur la resource?
+
+	 			//on retourne l'objet sérialisable
+ 				return (Serializable)tableIdData.get(joi).getObjDistant();
 	 			
 	 		}else{
 	 			
