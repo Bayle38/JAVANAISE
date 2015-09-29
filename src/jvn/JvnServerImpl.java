@@ -92,7 +92,7 @@ public class JvnServerImpl
 	throws jvn.JvnException {
 		// to be completed
 		try {
-			coordinateur.jvnRegisterObject(jon, jo, js);
+			coordinateur.jvnRegisterObject(jon, jo, jo.jvnGetObjectId(), js);
 		} catch (RemoteException e) {
 			// TODO : Gérer les pannes coordinateur. 
 			e.printStackTrace();
@@ -106,7 +106,7 @@ public class JvnServerImpl
 	* @throws JvnException
 	**/
 	public  JvnObject jvnLookupObject(String jon)
-	throws jvn.JvnException {
+	throws JvnException {
     // to be completed 
 		try {
 			coordinateur.jvnLookupObject(jon, js);
@@ -160,7 +160,7 @@ public class JvnServerImpl
 	* @throws java.rmi.RemoteException,JvnException
 	**/
   public void jvnInvalidateReader(int joi)
-	throws java.rmi.RemoteException,jvn.JvnException {
+	throws java.rmi.RemoteException,JvnException {
 		// to be completed 
 	  	cache.get(joi).jvnInvalidateReader();
 	};
