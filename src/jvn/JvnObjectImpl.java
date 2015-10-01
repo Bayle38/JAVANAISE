@@ -5,9 +5,10 @@ import java.io.Serializable;
 public class JvnObjectImpl implements JvnObject {            
                                                              
 	Serializable obj;                                        
-                                                             
+    Verrou state;                                     
 	public JvnObjectImpl(Serializable o) {                   
-		obj = o;                                             
+		obj = o;   
+		state = Verrou.NL;
 	}                                                        
                                                              
 	public void jvnLockRead() throws JvnException {          
