@@ -7,3 +7,4 @@ build*
 java.policy
 .settings
 .DS_Store
+/bin/
