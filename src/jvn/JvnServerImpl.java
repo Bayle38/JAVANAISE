@@ -90,7 +90,7 @@ public class JvnServerImpl
 	* @param jo : the JVN object 
 	* @throws JvnException
 	**/
-	public  void jvnRegisterObject(String jon, JvnObject jo)
+	public void jvnRegisterObject(String jon, JvnObject jo)
 	throws jvn.JvnException {
 		// to be completed
 		try {
@@ -114,7 +114,11 @@ public class JvnServerImpl
     // to be completed 
 		JvnObject obj;
 		try {
-			obj = coordinateur.jvnLookupObject(jon, js);
+			if((obj = cache.get(jon))!=null){
+				
+			}else{
+				obj = coordinateur.jvnLookupObject(jon, js);
+			}
 		} catch (RemoteException e) {
 			// TODO Gérer les pannes coordinateur.
 			e.printStackTrace();
@@ -132,7 +136,10 @@ public class JvnServerImpl
    public Serializable jvnLockRead(int joi)
 	 throws JvnException {
 	   try {
-		coordinateur.jvnLockRead(joi, js);
+		   JvnObject jo = cache.get(map.get(joi));
+		   // TODO: test sur l'état courant
+		   Serializable v = jo.jvnGetObjectState();
+		   v = coordinateur.jvnLockRead(joi, js);
 	} catch (RemoteException e) {
 		// TODO : Gérer les pannes coordinateur.
 		e.printStackTrace();
@@ -149,6 +156,9 @@ public class JvnServerImpl
    public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
 		try {
+			JvnObject jo = cache.get(map.get(joi));
+			// TODO: test sur l'état courant
+			Serializable v = jo.jvnGetObjectState();
 			coordinateur.jvnLockWrite(joi, js);
 		} catch (RemoteException e) {
 			// TODO : Gérer les pannes coordinateur.
