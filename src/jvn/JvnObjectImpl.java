@@ -2,24 +2,24 @@ package jvn;
 
 import java.io.Serializable;
 
-public class JvnObjectImpl implements JvnObject {
-
-	Serializable obj;
-	public JvnObjectImpl(Serializable o) {
-		obj = o;
-		;;
-	}
-
-	public void jvnLockRead() throws JvnException {
-		// TODO Auto-generated method stub
-	}
-
-	public void jvnLockWrite() throws JvnException {
-		// TODO Auto-generated method stub
-	}
-
-	public void jvnUnLock() throws JvnException {
-		// TODO Auto-generated method stub
+public class JvnObjectImpl implements JvnObject {            
+                                                             
+	Serializable obj;                                        
+                                                             
+	public JvnObjectImpl(Serializable o) {                   
+		obj = o;                                             
+	}                                                        
+                                                             
+	public void jvnLockRead() throws JvnException {          
+		// TODO Auto-generated method stub                   
+	}                                                        
+                                                             
+	public void jvnLockWrite() throws JvnException {         
+		// TODO Auto-generated method stub                   
+	}                                                        
+                                                             
+	public void jvnUnLock() throws JvnException {            
+		// TODO Auto-generated method stub                   
 	}
 
 	public int jvnGetObjectId() throws JvnException {

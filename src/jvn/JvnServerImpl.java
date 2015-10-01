@@ -28,7 +28,9 @@ public class JvnServerImpl
 	/** Arguments pour le cache d'objet
 	 * 		cache liste des JvnObect
 	 * */
-	HashMap<Integer,JvnObject> cache;
+	HashMap<String,JvnObject> cache;
+	HashMap<Integer,String> map;
+
 	//
   /**
   * Default constructor
@@ -37,7 +39,7 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		// to be completed
-		cache = new HashMap<Integer, JvnObject>();
+		cache = new HashMap<String, JvnObject>();
         JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 10000); // Génère un stub vers notre service.
         registryLocal = LocateRegistry.createRegistry(10000);
         registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
@@ -92,7 +94,9 @@ public class JvnServerImpl
 	throws jvn.JvnException {
 		// to be completed
 		try {
-			coordinateur.jvnRegisterObject(jon, jo, jo.jvnGetObjectId(), js);
+			coordinateur.jvnRegisterObject(jon, jo, js);
+			cache.put(jon, jo);
+			map.put(jo.jvnGetObjectId(), jon);
 		} catch (RemoteException e) {
 			// TODO : Gérer les pannes coordinateur. 
 			e.printStackTrace();
@@ -108,13 +112,15 @@ public class JvnServerImpl
 	public  JvnObject jvnLookupObject(String jon)
 	throws JvnException {
     // to be completed 
+		JvnObject obj;
 		try {
-			coordinateur.jvnLookupObject(jon, js);
+			obj = coordinateur.jvnLookupObject(jon, js);
 		} catch (RemoteException e) {
 			// TODO Gérer les pannes coordinateur.
 			e.printStackTrace();
+			obj = null;
 		}
-		return null;
+		return obj;
 	}	
 	
 	/**
