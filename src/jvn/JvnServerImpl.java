@@ -88,7 +88,7 @@ public class JvnServerImpl
 		// to be completed 
 		JvnObject jo;
 		try {
-			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId(),this);
+			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId());
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
