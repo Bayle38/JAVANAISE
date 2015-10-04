@@ -12,8 +12,11 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.HashMap;
 import java.io.*;
+
+import com.sun.beans.util.Cache;
 
 
 
@@ -28,8 +31,8 @@ public class JvnServerImpl
 	/** Arguments pour le cache d'objet
 	 * 		cache liste des JvnObect
 	 * */
-	HashMap<String,JvnObject> cache;
-	HashMap<Integer,String> map;
+	HashMap<Integer,JvnObject> cache;
+	//HashMap<Integer,String> map;
 
 	//
   /**
@@ -39,7 +42,7 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		// to be completed
-		cache = new HashMap<String, JvnObject>();
+		cache = new HashMap<Integer, JvnObject>();
         JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 10000); // Génère un stub vers notre service.
         registryLocal = LocateRegistry.createRegistry(10000);
         registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
@@ -70,6 +73,11 @@ public class JvnServerImpl
 	throws jvn.JvnException {
     // to be completed
 		cache = null;
+		try {
+			coordinateur.jvnTerminate(js);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	} 
 	
 	/**
@@ -80,7 +88,14 @@ public class JvnServerImpl
 	public  JvnObject jvnCreateObject(Serializable o)
 	throws jvn.JvnException { 
 		// to be completed 
-		JvnObject jo = new JvnObjectImpl(o);
+		JvnObject jo;
+		try {
+			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId());
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			jo = null;
+		}
 		return jo; 
 	}
 	
@@ -94,9 +109,7 @@ public class JvnServerImpl
 	throws jvn.JvnException {
 		// to be completed
 		try {
-			coordinateur.jvnRegisterObject(jon, jo, js);
-			cache.put(jon, jo);
-			map.put(jo.jvnGetObjectId(), jon);
+			coordinateur.jvnRegisterObject(jon, jo , js);
 		} catch (RemoteException e) {
 			// TODO : Gérer les pannes coordinateur. 
 			e.printStackTrace();
@@ -136,15 +149,13 @@ public class JvnServerImpl
    public Serializable jvnLockRead(int joi)
 	 throws JvnException {
 	   try {
-		   JvnObject jo = cache.get(map.get(joi));
 		   // TODO: test sur l'état courant
-		   Serializable v = jo.jvnGetObjectState();
-		   v = coordinateur.jvnLockRead(joi, js);
+		   cache.get(joi).jvnGetObjectState();
+		   cache.put(joi, (JvnObject)coordinateur.jvnLockRead(joi, js));
 	} catch (RemoteException e) {
 		// TODO : Gérer les pannes coordinateur.
 		e.printStackTrace();
 	}
-	   
 	   return null;
 	}	
 	/**
@@ -156,10 +167,7 @@ public class JvnServerImpl
    public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
 		try {
-			JvnObject jo = cache.get(map.get(joi));
-			// TODO: test sur l'état courant
-			Serializable v = jo.jvnGetObjectState();
-			coordinateur.jvnLockWrite(joi, js);
+			cache.put(joi, (JvnObject)coordinateur.jvnLockWrite(joi, js));
 		} catch (RemoteException e) {
 			// TODO : Gérer les pannes coordinateur.
 			e.printStackTrace();
