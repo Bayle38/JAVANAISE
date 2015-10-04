@@ -41,7 +41,6 @@ public class JvnServerImpl
   **/
 	private JvnServerImpl() throws Exception {
 		super();
-		// to be completed
 		cache = new HashMap<Integer, JvnObject>();
         JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 10000); // Génère un stub vers notre service.
         registryLocal = LocateRegistry.createRegistry(10000);
@@ -54,7 +53,7 @@ public class JvnServerImpl
     * a JVN server instance
     * @throws JvnException
     **/
-	public static JvnServerImpl jvnGetServer() {
+	synchronized public static JvnServerImpl jvnGetServer() {
 		if (js == null){
 			try {
 				js = new JvnServerImpl();
@@ -69,12 +68,11 @@ public class JvnServerImpl
 	* The JVN service is not used anymore
 	* @throws JvnException
 	**/
-	public  void jvnTerminate()
+	synchronized public  void jvnTerminate()
 	throws jvn.JvnException {
-    // to be completed
-		cache = null;
 		try {
 			coordinateur.jvnTerminate(js);
+			cache = null;
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -85,12 +83,12 @@ public class JvnServerImpl
 	* @param o : the JVN object state
 	* @throws JvnException
 	**/
-	public  JvnObject jvnCreateObject(Serializable o)
+	synchronized public  JvnObject jvnCreateObject(Serializable o)
 	throws jvn.JvnException { 
 		// to be completed 
 		JvnObject jo;
 		try {
-			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId());
+			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId(),this);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,7 +103,7 @@ public class JvnServerImpl
 	* @param jo : the JVN object 
 	* @throws JvnException
 	**/
-	public void jvnRegisterObject(String jon, JvnObject jo)
+	synchronized public void jvnRegisterObject(String jon, JvnObject jo)
 	throws jvn.JvnException {
 		// to be completed
 		try {
@@ -122,7 +120,7 @@ public class JvnServerImpl
 	* @return the JVN object 
 	* @throws JvnException
 	**/
-	public  JvnObject jvnLookupObject(String jon)
+	synchronized public  JvnObject jvnLookupObject(String jon)
 	throws JvnException {
     // to be completed 
 		JvnObject obj;
@@ -146,33 +144,31 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws  JvnException
 	**/
-   public Serializable jvnLockRead(int joi)
+	synchronized public Serializable jvnLockRead(int joi)
 	 throws JvnException {
-	   try {
-		   // TODO: test sur l'état courant
-		   cache.get(joi).jvnGetObjectState();
-		   cache.put(joi, (JvnObject)coordinateur.jvnLockRead(joi, js));
-	} catch (RemoteException e) {
-		// TODO : Gérer les pannes coordinateur.
-		e.printStackTrace();
-	}
-	   return null;
-	}	
+		Serializable s = null;
+		try {
+		   s = cache.put(joi, (JvnObject)coordinateur.jvnLockRead(joi, js));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		   return s;
+		}	
 	/**
 	* Get a Write lock on a JVN object 
 	* @param joi : the JVN object identification
 	* @return the current JVN object state
 	* @throws  JvnException
 	**/
-   public Serializable jvnLockWrite(int joi)
+	synchronized public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
+		Serializable s = null;
 		try {
-			cache.put(joi, (JvnObject)coordinateur.jvnLockWrite(joi, js));
+			s = cache.put(joi, (JvnObject)coordinateur.jvnLockWrite(joi, js));
 		} catch (RemoteException e) {
-			// TODO : Gérer les pannes coordinateur.
 			e.printStackTrace();
 		} 
-		return null;
+		return s;
 	}	
 
 	
@@ -183,9 +179,8 @@ public class JvnServerImpl
 	* @return void
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-  public void jvnInvalidateReader(int joi)
+	synchronized public void jvnInvalidateReader(int joi)
 	throws java.rmi.RemoteException,JvnException {
-		// to be completed 
 	  	cache.get(joi).jvnInvalidateReader();
 	};
 	    
@@ -195,10 +190,9 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-  public Serializable jvnInvalidateWriter(int joi)
+	synchronized public Serializable jvnInvalidateWriter(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException { 
-	  	cache.get(joi).jvnInvalidateWriter();
-		return null;
+		return cache.get(joi).jvnInvalidateWriter();
 	};
 	
 	/**
@@ -207,10 +201,9 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-   public Serializable jvnInvalidateWriterForReader(int joi)
+	synchronized public Serializable jvnInvalidateWriterForReader(int joi)
 	 throws java.rmi.RemoteException,jvn.JvnException { 
-		cache.get(joi).jvnInvalidateWriterForReader(); 
-		return null;
+		return cache.get(joi).jvnInvalidateWriterForReader();
 	 };
 
 }
