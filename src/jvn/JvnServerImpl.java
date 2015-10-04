@@ -42,10 +42,10 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		cache = new HashMap<Integer, JvnObject>();
-        JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 10000); // Génère un stub vers notre service.
-        registryLocal = LocateRegistry.createRegistry(10000);
+        JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 2015); // Génère un stub vers notre service.
+        registryLocal = LocateRegistry.createRegistry(2015);
         registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
-        Registry registry2 = LocateRegistry.getRegistry("127.0.0.1", 10000); //l'adresse peut etre changée par celle du coordinateur. 
+        Registry registry2 = LocateRegistry.getRegistry("127.0.0.1", 2015); //l'adresse peut etre changée par celle du coordinateur. 
         coordinateur = (JvnRemoteCoord) registry2.lookup("coord");
 	}
   /**
@@ -53,7 +53,7 @@ public class JvnServerImpl
     * a JVN server instance
     * @throws JvnException
     **/
-	synchronized public static JvnServerImpl jvnGetServer() {
+	public static JvnServerImpl jvnGetServer() {
 		if (js == null){
 			try {
 				js = new JvnServerImpl();
@@ -68,7 +68,7 @@ public class JvnServerImpl
 	* The JVN service is not used anymore
 	* @throws JvnException
 	**/
-	synchronized public  void jvnTerminate()
+	public  void jvnTerminate()
 	throws jvn.JvnException {
 		try {
 			coordinateur.jvnTerminate(js);
@@ -83,7 +83,7 @@ public class JvnServerImpl
 	* @param o : the JVN object state
 	* @throws JvnException
 	**/
-	synchronized public  JvnObject jvnCreateObject(Serializable o)
+	public  JvnObject jvnCreateObject(Serializable o)
 	throws jvn.JvnException { 
 		// to be completed 
 		JvnObject jo;
@@ -103,7 +103,7 @@ public class JvnServerImpl
 	* @param jo : the JVN object 
 	* @throws JvnException
 	**/
-	synchronized public void jvnRegisterObject(String jon, JvnObject jo)
+	public void jvnRegisterObject(String jon, JvnObject jo)
 	throws jvn.JvnException {
 		// to be completed
 		try {
@@ -120,7 +120,7 @@ public class JvnServerImpl
 	* @return the JVN object 
 	* @throws JvnException
 	**/
-	synchronized public  JvnObject jvnLookupObject(String jon)
+	public  JvnObject jvnLookupObject(String jon)
 	throws JvnException {
     // to be completed 
 		JvnObject obj;
@@ -144,7 +144,7 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws  JvnException
 	**/
-	synchronized public Serializable jvnLockRead(int joi)
+	public Serializable jvnLockRead(int joi)
 	 throws JvnException {
 		Serializable s = null;
 		try {
@@ -160,7 +160,7 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws  JvnException
 	**/
-	synchronized public Serializable jvnLockWrite(int joi)
+	public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
 		Serializable s = null;
 		try {
@@ -179,7 +179,7 @@ public class JvnServerImpl
 	* @return void
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-	synchronized public void jvnInvalidateReader(int joi)
+	public void jvnInvalidateReader(int joi)
 	throws java.rmi.RemoteException,JvnException {
 	  	cache.get(joi).jvnInvalidateReader();
 	};
@@ -190,7 +190,7 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-	synchronized public Serializable jvnInvalidateWriter(int joi)
+	public Serializable jvnInvalidateWriter(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException { 
 		return cache.get(joi).jvnInvalidateWriter();
 	};
@@ -201,7 +201,7 @@ public class JvnServerImpl
 	* @return the current JVN object state
 	* @throws java.rmi.RemoteException,JvnException
 	**/
-	synchronized public Serializable jvnInvalidateWriterForReader(int joi)
+	public Serializable jvnInvalidateWriterForReader(int joi)
 	 throws java.rmi.RemoteException,jvn.JvnException { 
 		return cache.get(joi).jvnInvalidateWriterForReader();
 	 };
