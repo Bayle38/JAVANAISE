@@ -13,7 +13,6 @@ public class JvnObjectImpl implements JvnObject {
 		obj = o;   
 		state = Verrou.NL;
 		id = i;
-		this.js=js;
 		js = JvnServerImpl.jvnGetServer();
 	}                                                        
                                                              
