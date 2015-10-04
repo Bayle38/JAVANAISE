@@ -2,49 +2,70 @@ package jvn;
 
 import java.io.Serializable;
 
-public class JvnObjectImpl implements JvnObject {
-
-	Serializable obj;
-	public JvnObjectImpl(Serializable o) {
-		obj = o;
-		;;
-	}
-
-	public void jvnLockRead() throws JvnException {
-		// TODO Auto-generated method stub
-	}
-
-	public void jvnLockWrite() throws JvnException {
-		// TODO Auto-generated method stub
-	}
-
-	public void jvnUnLock() throws JvnException {
-		// TODO Auto-generated method stub
+public class JvnObjectImpl implements JvnObject {            
+                                                             
+	Serializable obj;                                        
+    Verrou state;
+    int id;
+	public JvnObjectImpl(Serializable o,int i) {                   
+		obj = o;   
+		state = Verrou.NL;
+		id = i;
+	}                                                        
+                                                             
+	public void jvnLockRead() throws JvnException {          
+		// TODO Auto-generated method stub                   
+	}                                                        
+                                                             
+	public void jvnLockWrite() throws JvnException {         
+		// TODO Auto-generated method stub                   
+	}                                                        
+                                                             
+	public void jvnUnLock() throws JvnException {            
+		// TODO Auto-generated method stub                   
 	}
 
 	public int jvnGetObjectId() throws JvnException {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	public Serializable jvnGetObjectState() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		return obj;
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		// TODO Auto-generated method stub
-
+		switch(state){
+		case NL:break;
+		case R:break;
+		case RC:break;
+		case W:break;
+		case WC:break;
+		case RWC:break;
+		}
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		switch(state){
+		case NL:break;
+		case R:break;
+		case RC:break;
+		case W:break;
+		case WC:break;
+		case RWC:break;
+		}
+		return obj;
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		switch(state){
+		case NL:break;
+		case R:break;
+		case RC:break;
+		case W:break;
+		case WC:break;
+		case RWC:break;
+		}
+		return obj;
 	}
 
 }
