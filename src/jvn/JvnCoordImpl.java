@@ -14,8 +14,10 @@ import jvn.DataStore;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles.Lookup;
 
 
 
@@ -68,7 +70,7 @@ public class JvnCoordImpl
   **/
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
-	int joi= jvnGetObjectId();
+	int joi= jo.jvnGetObjectId();
 	//on vérifie qu'un autre objet n'est pas déjà identifié dans la table avec le même nom
 	if (tableNomId.containsKey(jon)){
 		throw new JvnException();
@@ -106,7 +108,7 @@ public class JvnCoordImpl
   * @return the current JVN object state
   * @throws java.rmi.RemoteException, JvnException
   **/
-   public Serializable jvnLockRead(int joi, JvnRemoteServer js)
+   public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js)
    throws java.rmi.RemoteException, JvnException{
 	 //la resource existe-t-elle?
 	 if (tableIdData.containsKey(joi)){
@@ -148,7 +150,9 @@ public class JvnCoordImpl
 	 		break;
 	 	}
 
-	 	//on retourne l'objet sérialisable
+	 	//on retourne l'objet sérialisable 
+	 	//on utilise pas jvnlookup car on devrais alors faire la correspondance entre une valeur (identifiant) et une clef (le nom symbolique)
+	 	//dans une hasmap (et non pas l'inverse) afin d'utiliser la fonction
  		return (Serializable)tableIdData.get(joi).getObjDistant();
 	 			
 	}else{
@@ -163,7 +167,7 @@ public class JvnCoordImpl
   * @return the current JVN object state
   * @throws java.rmi.RemoteException, JvnException
   **/
-   public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
+   public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js)
    throws java.rmi.RemoteException, JvnException{
 	 //la resource existe-t-elle?
 		 if (tableIdData.containsKey(joi)){
@@ -216,6 +220,8 @@ public class JvnCoordImpl
 		 	}
 
 		 	//on retourne l'objet sérialisable
+		 	//on utilise pas jvnlookup car on devrais alors faire la correspondance entre une valeur (identifiant) et une clef (le nom symbolique)
+		 	//dans une hasmap (et non pas l'inverse) afin d'utiliser la fonction
 	 		return (Serializable)tableIdData.get(joi).getObjDistant();
 		 			
 		}else{
@@ -230,7 +236,24 @@ public class JvnCoordImpl
 	**/
     public void jvnTerminate(JvnRemoteServer js)
 	 throws java.rmi.RemoteException, JvnException {
-	 // to be completed
+	//on parcours toutes les tables et si le jvnremoteserver apparait, alors on le retire et s'il est seul possésseur 
+    //d'un verrou, on le passe en NL
+    	
+    Object [] s= tableIdData.keySet().toArray();
+    //parcour de toutes les entrées
+    for (int i = 0; i < tableIdData.size(); i++) {
+		//le jvnRemoteServer possède-t-il un verrou sur cette resource?
+    	ArrayList<JvnRemoteServer> L= tableIdData.get((int)s[i]).getListeVerrouClients().getListeClients();
+    	if (L.contains(js)){ //retirer le server de la liste
+    		L.remove(js);
+    		//y a-t-il encore des clients possédant un verrou sur la resource?
+    		if (L.isEmpty()){
+    			//passer le verrou en NL
+    			tableIdData.get((int)s[i]).getListeVerrouClients().setVerrou(Verrou.NL);
+    		}
+    		tableIdData.get((int)s[i]).getListeVerrouClients().setListeClients(L);
+    	}
+	}	
     }
 }
 
