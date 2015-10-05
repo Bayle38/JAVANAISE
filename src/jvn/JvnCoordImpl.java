@@ -34,7 +34,7 @@ public class JvnCoordImpl
   * Default constructor
   * @throws JvnException
   **/
-	private JvnCoordImpl() throws Exception {
+	public JvnCoordImpl() throws Exception {
 		//création d'un RmiRegistery interne
 		LocateRegistry.createRegistry(2015);
 		
