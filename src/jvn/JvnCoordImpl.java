@@ -78,6 +78,7 @@ public class JvnCoordImpl
   * @param js  : the remote reference of the JVNServer
   * @throws java.rmi.RemoteException,JvnException
   **/
+  //On suppose que lorsque l'intercepteur d'objet est créé, le client ne possède aucun verrou sur la resource
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
 	int joi= jo.jvnGetObjectId();

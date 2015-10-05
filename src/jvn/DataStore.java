@@ -1,18 +1,19 @@
 package jvn;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class DataStore {
-	private Object objDistant;
+	private Serializable objDistant;
 	private VerrouListeClients listeVerrouClients;
 	
 	public DataStore(){
-		objDistant= new Object();
+		objDistant= null;
 		listeVerrouClients = new VerrouListeClients();
 	}
 	
 	//on fait l'hypothès qu'à la création, l'objet créé n'est pas utilisé immédiatement par un client
-	public DataStore(Object o ){
+	public DataStore(Serializable o ){
 		objDistant= o;
 		listeVerrouClients= new VerrouListeClients();
 	}
@@ -21,7 +22,7 @@ public class DataStore {
 		return objDistant;
 	}
 	
-	public void setObjDistant(Object o){
+	public void setObjDistant(Serializable o){
 		objDistant= o;
 	}
 	
