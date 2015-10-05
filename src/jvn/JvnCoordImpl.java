@@ -28,6 +28,8 @@ public class JvnCoordImpl
               extends UnicastRemoteObject 
 							implements JvnRemoteCoord{
 
+	//compteur pour les ID
+	private int id;
 	//table de correspondance nom symbolique-identifiant objet distant
 	private HashMap<String, Integer> tableNomId;
 	//table de correspondance identifiant objet distant- DataStore correspondant
@@ -42,6 +44,7 @@ public class JvnCoordImpl
 		Registry reg = LocateRegistry.createRegistry(2015);
 		
 		//initialisation des structures de données
+		id= 0;
 		tableNomId = new HashMap<>();
 		tableIdData = new HashMap<>();
 		
@@ -59,9 +62,10 @@ public class JvnCoordImpl
   *  newly created JVN object)
   * @throws java.rmi.RemoteException,JvnException
   **/
-  public int jvnGetObjectId()
+  public synchronized int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
-	  int id = Integer.parseInt(UUID.randomUUID().toString());
+	  //int id = Integer.parseInt(UUID.randomUUID().toString())
+	  id++;
 	  System.out.println("Generate new ID : " + id);
 	  return id; 
   }
