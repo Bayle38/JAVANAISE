@@ -12,11 +12,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collections;
 import java.util.HashMap;
 import java.io.*;
 
-import com.sun.beans.util.Cache;
 
 
 
@@ -42,9 +40,9 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		cache = new HashMap<Integer, JvnObject>();
-        JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 2015); // Génère un stub vers notre service.
-        registryLocal = LocateRegistry.createRegistry(2015);
-        registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
+//        JvnRemoteServer server = (JvnRemoteServer) UnicastRemoteObject.exportObject(this, 2015); // Génère un stub vers notre service.
+//        registryLocal = LocateRegistry.createRegistry(2015);
+//        registryLocal.rebind("client", server); // publie notre instance sous le nom "client"
         Registry registry2 = LocateRegistry.getRegistry("127.0.0.1", 2015); //l'adresse peut etre changée par celle du coordinateur. 
         coordinateur = (JvnRemoteCoord) registry2.lookup("coord");
 	}
@@ -90,9 +88,8 @@ public class JvnServerImpl
 		try {
 			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId());
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			jo = null;
+			throw new JvnException("Impossible de créer l'objet sur le client.");
 		}
 		return jo; 
 	}
@@ -125,15 +122,11 @@ public class JvnServerImpl
     // to be completed 
 		JvnObject obj;
 		try {
-			if((obj = cache.get(jon))!=null){
-				
-			}else{
-				obj = coordinateur.jvnLookupObject(jon, js);
-			}
+			obj = coordinateur.jvnLookupObject(jon, js);
 		} catch (RemoteException e) {
 			// TODO Gérer les pannes coordinateur.
 			e.printStackTrace();
-			obj = null;
+			throw new JvnException("JvnException : " + e.getMessage());
 		}
 		return obj;
 	}	
@@ -151,6 +144,7 @@ public class JvnServerImpl
 		   s = cache.put(joi, (JvnObject)coordinateur.jvnLockRead(joi, js));
 		} catch (RemoteException e) {
 			e.printStackTrace();
+			throw new JvnException("JvnException : "+e.getMessage());
 		}
 		   return s;
 		}	

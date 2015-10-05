@@ -9,8 +9,11 @@
 package jvn;
 
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 import jvn.JvnRemoteCoord;
 import jvn.DataStore;
+
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +39,7 @@ public class JvnCoordImpl
   **/
 	public JvnCoordImpl() throws Exception {
 		//création d'un RmiRegistery interne
-		LocateRegistry.createRegistry(2015);
+		Registry reg = LocateRegistry.createRegistry(2015);
 		
 		//initialisation des structures de données
 		tableNomId = new HashMap<>();
@@ -44,7 +47,8 @@ public class JvnCoordImpl
 		
 		//passage d'une référence du coordinateur dans le rmiRegistry sous le nom "coord"
 		try{
-			java.rmi.Naming.bind("coord", this);
+//			java.rmi.Naming.bind("coord", this);
+			reg.bind("coord", this);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -57,7 +61,9 @@ public class JvnCoordImpl
   **/
   public int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
-	  return Integer.parseInt(UUID.randomUUID().toString()); 
+	  int id = Integer.parseInt(UUID.randomUUID().toString());
+	  System.out.println("Generate new ID : " + id);
+	  return id; 
   }
   
   /**
