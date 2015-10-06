@@ -87,6 +87,7 @@ public class JvnServerImpl
 		JvnObject jo;
 		try {
 			jo = new JvnObjectImpl(o, coordinateur.jvnGetObjectId());
+			cache.put(jo.jvnGetObjectId(), jo);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			throw new JvnException("Impossible de créer l'objet sur le client.");
