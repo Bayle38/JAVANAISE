@@ -15,9 +15,9 @@ public class JvnObjectImpl implements JvnObject {
 		id = i;
 	}                                                        
                                                              
-	synchronized public void jvnLockRead() throws JvnException {          
+	public void jvnLockRead() throws JvnException {          
 		switch(state){
-		case NL:JvnServerImpl.jvnGetServer().jvnLockRead(id); state = Verrou.R; break;
+		case NL: obj = JvnServerImpl.jvnGetServer().jvnLockRead(id); state = Verrou.R; break;
 		case R:throw new JvnException("Verrou déjà pris : lecture");
 		case RC: state = Verrou.R; break;
 		case W:throw new JvnException("Verrou déjà pris : écriture");
@@ -26,11 +26,11 @@ public class JvnObjectImpl implements JvnObject {
 		}
 	}                                                        
                                                              
-	synchronized public void jvnLockWrite() throws JvnException {         
+	public void jvnLockWrite() throws JvnException {         
 		switch(state){
-		case NL:JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
-		case R: JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
-		case RC: JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
+		case NL:
+		case R: 
+		case RC: obj = JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
 		case W: throw new JvnException("Verrou déjà pris : écriture");
 		case WC:state = Verrou.W;break;
 		case RWC:state = Verrou.W;break;
@@ -57,7 +57,7 @@ public class JvnObjectImpl implements JvnObject {
 		return obj;
 	}
 
-	synchronized public void jvnInvalidateReader() throws JvnException {
+	public void jvnInvalidateReader() throws JvnException {
 		switch(state){
 		case R: 
 			try{
@@ -76,7 +76,7 @@ public class JvnObjectImpl implements JvnObject {
 		}
 	}
 
-	synchronized public Serializable jvnInvalidateWriter() throws JvnException {
+	public Serializable jvnInvalidateWriter() throws JvnException {
 		switch(state){
 		case NL:
 		case R:
@@ -102,7 +102,7 @@ public class JvnObjectImpl implements JvnObject {
 		return obj;
 	}
 
-	synchronized public Serializable jvnInvalidateWriterForReader() throws JvnException {
+	public Serializable jvnInvalidateWriterForReader() throws JvnException {
 		switch(state){
 		case W: 
 			try {

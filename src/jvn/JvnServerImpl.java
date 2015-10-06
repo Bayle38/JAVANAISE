@@ -145,7 +145,7 @@ public class JvnServerImpl
 	 throws JvnException {
 		Serializable s = null;
 		try {
-		   s = cache.put(joi, (JvnObject)coordinateur.jvnLockRead(joi, js));
+			s = coordinateur.jvnLockRead(joi, js);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			throw new JvnException("JvnException : "+e.getMessage());
@@ -162,7 +162,7 @@ public class JvnServerImpl
 	 throws JvnException {
 		Serializable s = null;
 		try {
-			s = cache.put(joi, (JvnObject)coordinateur.jvnLockWrite(joi, js));
+			s = coordinateur.jvnLockWrite(joi, js);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} 

@@ -88,7 +88,7 @@ public class JvnCoordImpl
 	}else{ //créer une nouvelle entrée dans les deux tables
 		tableNomId.put(jon, joi);
 		//ajout d'un nouveau dataStore
-		DataStore dt= new DataStore(jo);
+		DataStore dt= new DataStore(jo.jvnGetObjectState());
 		VerrouListeClients l= dt.getListeVerrouClients();
 		l.setVerrou(Verrou.NL); //à la création, une resource est libre et a le verrou NL
 		dt.setListeVerrouClients(l);
@@ -200,7 +200,7 @@ public class JvnCoordImpl
 		 		
 		 		//invalidation des verrous des clients de la liste
 		 		for (int i = 0; i < tableIdData.get(joi).getListeVerrouClients().getListeClients().size(); i++) {
-		 			tableIdData.get(joi).getListeVerrouClients().getListeClients().get(0).jvnInvalidateReader(i);
+		 			tableIdData.get(joi).getListeVerrouClients().getListeClients().get(i).jvnInvalidateReader(joi);
 				}
 		 		//changement du verrou
 		 		VerrouListeClients l2= tableIdData.get(joi).getListeVerrouClients();
@@ -215,7 +215,7 @@ public class JvnCoordImpl
 //verrou incompatible avec les autres verrous, on invalide le(s) verrou(s) actuel(s) et js devient seul possésseur du verrou
 		 		
 		 		//invalidation du verrou du client
-		 		Serializable o= tableIdData.get(joi).getListeVerrouClients().getListeClients().get(0).jvnInvalidateWriter(0);
+		 		Serializable o= tableIdData.get(joi).getListeVerrouClients().getListeClients().get(0).jvnInvalidateWriter(joi);
 		 		// mettre à jour la dernière version de l'objet
 		 		tableIdData.get(joi).setObjDistant(o);
 		 		//js devient le seul possésseur du verrou
