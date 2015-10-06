@@ -18,7 +18,7 @@ public class DataStore {
 		listeVerrouClients= new VerrouListeClients();
 	}
 	
-	public Object getObjDistant(){
+	public Serializable getObjDistant(){
 		return objDistant;
 	}
 	

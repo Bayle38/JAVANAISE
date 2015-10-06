@@ -123,6 +123,9 @@ public class JvnServerImpl
 		JvnObject obj;
 		try {
 			obj = coordinateur.jvnLookupObject(jon, js);
+			if(obj!=null){
+				cache.put(obj.jvnGetObjectId(), obj);
+			}
 		} catch (RemoteException e) {
 			// TODO Gérer les pannes coordinateur.
 			e.printStackTrace();

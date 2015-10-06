@@ -107,7 +107,7 @@ public class JvnCoordImpl
   throws java.rmi.RemoteException,jvn.JvnException{
 	  JvnObject res= null;
 		if(tableNomId.containsKey(jon)){
-			res=  (JvnObject)tableIdData.get(tableNomId.get(jon)).getObjDistant();
+			res=  new JvnObjectImpl(tableIdData.get(tableNomId.get(jon)).getObjDistant(),(int)tableNomId.get(jon));
 		}
 		return res; 
   }

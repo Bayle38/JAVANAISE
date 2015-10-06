@@ -8,17 +8,16 @@ public class JvnObjectImpl implements JvnObject {
 	Serializable obj;                                        
     Verrou state;
     int id;
-    JvnLocalServer js;
+    //JvnLocalServer JvnServerImpl.jvnGetServer();
 	public JvnObjectImpl(Serializable o,int i) {                   
 		obj = o;   
 		state = Verrou.NL;
 		id = i;
-		js = JvnServerImpl.jvnGetServer();
 	}                                                        
                                                              
 	synchronized public void jvnLockRead() throws JvnException {          
 		switch(state){
-		case NL:js.jvnLockRead(id); state = Verrou.R; break;
+		case NL:JvnServerImpl.jvnGetServer().jvnLockRead(id); state = Verrou.R; break;
 		case R:throw new JvnException("Verrou déjà pris : lecture");
 		case RC: state = Verrou.R; break;
 		case W:break;
@@ -29,9 +28,9 @@ public class JvnObjectImpl implements JvnObject {
                                                              
 	synchronized public void jvnLockWrite() throws JvnException {         
 		switch(state){
-		case NL:js.jvnLockWrite(id); state = Verrou.W; break;
-		case R: js.jvnLockWrite(id); state = Verrou.W; break;
-		case RC: js.jvnLockWrite(id); state = Verrou.W; break;
+		case NL:JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
+		case R: JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
+		case RC: JvnServerImpl.jvnGetServer().jvnLockWrite(id); state = Verrou.W; break;
 		case W: throw new JvnException("Verrou déjà pris : écriture");
 		case WC:state = Verrou.W;break;
 		case RWC:state = Verrou.W;break;
@@ -115,5 +114,4 @@ public class JvnObjectImpl implements JvnObject {
 		}
 		return obj;
 	}
-
 }
