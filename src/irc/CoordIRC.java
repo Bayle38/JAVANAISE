@@ -9,7 +9,6 @@ public class CoordIRC {
 			System.out.println("Serveur lancé !!!");
 		} catch (Exception e) {
 			e.printStackTrace();
-			//System.exit(0);
 		}
 	}
 }

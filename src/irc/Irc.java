@@ -39,13 +39,14 @@ public class Irc {
 		if (jo == null) {
 			jo = js.jvnCreateObject((Serializable) new Sentence());
 			// after creation, I have a write lock on the object
-			jo.jvnUnLock();
+			//jo.jvnUnLock();
 			js.jvnRegisterObject("IRC", jo);
 		}
 		// create the graphical part of the Chat application
-		 new Irc(jo);
+		new Irc(jo);
 	   
 	   } catch (Exception e) {
+		   e.printStackTrace();
 		   System.out.println("IRC problem : " + e.getMessage());
 	   }
 	}
@@ -105,6 +106,7 @@ public class Irc {
 		irc.data.setText(s);
 		irc.text.append(s+"\n");
 	   } catch (JvnException je) {
+		   je.printStackTrace();
 		   System.out.println("IRC problem : " + je.getMessage());
 	   }
 	}
@@ -137,7 +139,8 @@ public class Irc {
 		// unlock the object
 		irc.sentence.jvnUnLock();
 	 } catch (JvnException je) {
-		   System.out.println("IRC problem  : " + je.getMessage());
+		je.printStackTrace();
+		System.out.println("IRC problem  : " + je.getMessage());
 	 }
 	}
 }
