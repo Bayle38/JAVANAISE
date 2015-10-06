@@ -10,8 +10,8 @@ package irc;
 import java.awt.*;
 import java.awt.event.*;
 
-
 import jvn.*;
+
 import java.io.*;
 
 
@@ -74,6 +74,16 @@ public class Irc {
 		frame.setSize(545,201);
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
+		frame.addWindowListener(new WindowAdapter(){
+			  public void windowClosing(WindowEvent we){
+				  try {
+					JvnServerImpl.jvnGetServer().jvnTerminate();
+				} catch (JvnException e) {
+					e.printStackTrace();
+				}
+				  frame.dispose();
+			  }
+		});
 	}
 }
 

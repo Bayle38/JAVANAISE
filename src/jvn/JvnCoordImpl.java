@@ -247,6 +247,8 @@ public class JvnCoordImpl
 	**/
     public void jvnTerminate(JvnRemoteServer js)
 	 throws java.rmi.RemoteException, JvnException {
+    //TODO resource vide si tout le monde se déconnecte et que quelqu'un se connecte pour la récuperer
+    	
 	//on parcours toutes les tables et si le jvnremoteserver apparait, alors on le retire et s'il est seul possésseur 
     //d'un verrou, on le passe en NL
     	
