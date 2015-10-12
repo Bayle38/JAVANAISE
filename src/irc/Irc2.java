@@ -34,11 +34,8 @@ public class Irc2 {
 		
 		// look up the IRC object in the JVN server
 		// if not found, create it, and register it in the JVN server
-		ISentence jo = (ISentence) JvnInterceptor.lookup("IRC");
+		ISentence jo = (ISentence) JvnInterceptor.newInstance("IRC",Sentence.class);
 		   
-		if (jo == null) {
-			jo = (ISentence) JvnInterceptor.register("IRC", new Sentence());
-		}
 		// create the graphical part of the Chat application
 		new Irc2(jo);
 //	   jo.write("q");
