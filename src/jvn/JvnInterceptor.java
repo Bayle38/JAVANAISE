@@ -47,11 +47,11 @@ public class JvnInterceptor implements InvocationHandler{
 			throws Throwable {
 			Object result = null;
 			try{
-				Annotation an = m.getAnnotation(Operation.class);
-				if (((Operation) an).type() == "read"){
+				Operation op= m.getAnnotation(Operation.class);
+				if ( op.type().equals("read")){
 					o.jvnLockRead();
 					System.out.println("Read");
-				}else if(((Operation) an).type() == "write"){
+				}else if(op.type().equals("write")){
 					o.jvnLockWrite();
 					System.out.println("Write");
 				}
