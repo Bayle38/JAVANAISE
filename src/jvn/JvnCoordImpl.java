@@ -247,8 +247,7 @@ public class JvnCoordImpl
 	**/
     public void jvnTerminate(JvnRemoteServer js)
 	 throws java.rmi.RemoteException, JvnException {
-    //TODO resource vide si tout le monde se déconnecte et que quelqu'un se connecte pour la récuperer
-    	
+    
 	//on parcours toutes les tables et si le jvnremoteserver apparait, alors on le retire et s'il est seul possésseur 
     //d'un verrou, on le passe en NL
     	
@@ -258,6 +257,11 @@ public class JvnCoordImpl
 		//le jvnRemoteServer possède-t-il un verrou sur cette resource?
     	ArrayList<JvnRemoteServer> L= tableIdData.get((int)s[i]).getListeVerrouClients().getListeClients();
     	if (L.contains(js)){ //retirer le server de la liste
+    		if (tableIdData.get((int)s[i]).getListeVerrouClients().getVerrou() == Verrou.W){
+    			//verrou en lecture, récupérer la dernière version de l'objet
+    			Serializable o= js.jvnInvalidateWriter((int)s[i]);
+    			tableIdData.get((int)s[i]).setObjDistant(o);
+    		}
     		L.remove(js);
     		//y a-t-il encore des clients possédant un verrou sur la resource?
     		if (L.isEmpty()){
