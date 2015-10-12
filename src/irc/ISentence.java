@@ -2,11 +2,13 @@ package irc;
 
 import java.io.Serializable;
 
+import jvn.Operation;
+
 public interface ISentence extends Serializable{
 	
-	@Writing
+	@Operation(type="write")
 	public void write(String text) ;
 	
-	@Reading
+	@Operation(type="read")
 	public String read() ;
 }

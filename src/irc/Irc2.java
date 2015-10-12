@@ -19,7 +19,7 @@ public class Irc2 {
 	public TextArea		text;
 	public TextField	data;
 	Frame 			frame;
-	JvnObject       sentence;
+	ISentence       sentence;
 
 
   /**
@@ -40,9 +40,9 @@ public class Irc2 {
 			jo = (ISentence) JvnInterceptor.register("IRC", new Sentence());
 		}
 		// create the graphical part of the Chat application
-		//new Irc2(jo);
-	   jo.write("q");
-	   System.out.println(jo.read());
+		new Irc2(jo);
+//	   jo.write("q");
+//	   System.out.println(jo.read());
 	   } catch (Exception e) {
 		   e.printStackTrace();
 		   System.out.println("IRC problem : " + e.getMessage());
@@ -53,8 +53,8 @@ public class Irc2 {
    * IRC Constructor
    @param jo the JVN object representing the Chat
    **/
-	public Irc2(JvnObject jo) {
-		//sentence = jo;
+	public Irc2(ISentence jo) {
+		sentence = jo;
 		frame=new Frame();
 		frame.setLayout(new GridLayout(1,1));
 		text=new TextArea(10,60);
@@ -102,13 +102,13 @@ public class Irc2 {
 	public void actionPerformed (ActionEvent e) {
 	 try {
 		// lock the object in read mode
-		irc.sentence.jvnLockRead();
+		//irc.sentence.jvnLockRead();
 		
 		// invoke the method
-		String s = ((Sentence)(irc.sentence.jvnGetObjectState())).read();
+		String s = ((ISentence)irc.sentence).read();
 		
 		// unlock the object
-		irc.sentence.jvnUnLock();
+		//irc.sentence.jvnUnLock();
 		
 		// display the read value
 		irc.data.setText(s);
@@ -139,13 +139,13 @@ public class Irc2 {
     String s = irc.data.getText();
         	
     // lock the object in write mode
-		irc.sentence.jvnLockWrite();
+		//irc.sentence.jvnLockWrite();
 		
 		// invoke the method
-		((Sentence)(irc.sentence.jvnGetObjectState())).write(s);
+		((ISentence)irc.sentence).write(s);
 		
 		// unlock the object
-		irc.sentence.jvnUnLock();
+		//irc.sentence.jvnUnLock();
 	 } catch (JvnException je) {
 		je.printStackTrace();
 		System.out.println("IRC problem  : " + je.getMessage());

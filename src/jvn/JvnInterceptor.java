@@ -1,44 +1,63 @@
 package jvn;
 
+
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 
 public class JvnInterceptor implements InvocationHandler{
 	JvnObject o;
-	public JvnInterceptor(JvnObject obj){
-		o = obj;
+	Class c;
+	public JvnInterceptor(String name, Class c) throws JvnException{
+		JvnObject jo = JvnServerImpl.jvnGetServer().jvnLookupObject(name);
+		if(jo == null){
+			try {
+				jo = JvnServerImpl.jvnGetServer().jvnCreateObject((Serializable) c.newInstance());
+				JvnServerImpl.jvnGetServer().jvnRegisterObject(name, jo);
+				this.c = c;
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+				throw new JvnException("Erreur de class");
+			}
+		}
+		o = jo;
 	}
-	public static Object register(String name, Serializable obj) throws JvnException{
-		JvnObject jo = JvnServerImpl.jvnGetServer().jvnCreateObject(obj);
-		JvnServerImpl.jvnGetServer().jvnRegisterObject(name, jo);
+	public static Object newInstance(String name, Class c) throws JvnException{
 		return java.lang.reflect.Proxy.newProxyInstance(
-				obj.getClass().getClassLoader(),
-				obj.getClass().getInterfaces(), 
-				new JvnInterceptor(jo)
+				c.getClassLoader(),
+				c.getInterfaces(), 
+				new JvnInterceptor(name,c)
 		);
 	}
-	public static Object lookup(String name) throws JvnException{
-		JvnObject jo = JvnServerImpl.jvnGetServer().jvnLookupObject(name);
-		if(jo!=null){
-			return java.lang.reflect.Proxy.newProxyInstance(
-					jo.jvnGetObjectState().getClass().getClassLoader(),
-					jo.jvnGetObjectState().getClass().getInterfaces(), 
-					new JvnInterceptor(jo)
-			);
-		}
-		else return null;
-	}
+//	public static Object lookup(String name) throws JvnException{
+//		if(jo!=null){
+//			return java.lang.reflect.Proxy.newProxyInstance(
+//					jo.jvnGetObjectState().getClass().getClassLoader(),
+//					jo.jvnGetObjectState().getClass().getInterfaces(), 
+//					new JvnInterceptor(jo)
+//			);
+//		}
+//		else return null;
+//	}
 	
 	@Override
 	public Object invoke(Object ji, Method m, Object[] args)
 			throws Throwable {
 			Object result = null;
 			try{
-				System.out.println("avant");
+				Annotation an = m.getAnnotation(Operation.class);
+				if (((Operation) an).type() == "read"){
+					o.jvnLockRead();
+					System.out.println("Read");
+				}else if(((Operation) an).type() == "write"){
+					o.jvnLockWrite();
+					System.out.println("Write");
+				}
 				result = m.invoke(o.jvnGetObjectState(), args);
-				System.out.println("après");
+				o.jvnUnLock();
+				System.out.println("Unlock");
 			}catch(Exception e){
 				e.printStackTrace();
 			}
