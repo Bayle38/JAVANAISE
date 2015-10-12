@@ -77,6 +77,7 @@ public class Irc2 {
 					e.printStackTrace();
 				}
 				  frame.dispose();
+				  System.exit(0);
 			  }
 		});
 	}
