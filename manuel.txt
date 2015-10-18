@@ -1,0 +1,16 @@
+Lancer le serveur : 
+	Le serveur écoute sur le port 10000
+	
+	
+	
+Pour accéder au service de caches répartis il faut que les objets qui transitent sur le systeme
+implémente une Interface héritée de Serialisable. De plus les opération 
+qui observe ou modifie l'état de l'objet doivent être annotées à l'aide de l'annotation @Operation.
+En cas d'écriture @Operation(type="write") et en cas de lecture @Operation(type="read").
+
+
+	
+	
+	
+	
+	
