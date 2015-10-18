@@ -2,9 +2,10 @@ package jvn;
 
 import java.io.Serializable;
 import java.lang.Character.UnicodeScript;
+import java.util.concurrent.Semaphore;
 
 public class JvnObjectImpl implements JvnObject {            
-                                                             
+    Semaphore queue;                                                    
 	Serializable obj;                                        
     Verrou state;
     int id;
@@ -13,6 +14,7 @@ public class JvnObjectImpl implements JvnObject {
 		obj = o;   
 		state = Verrou.NL;
 		id = i;
+		queue = new Semaphore(1);
 	}                                                        
                                                              
 	public void jvnLockRead() throws JvnException {          
@@ -37,7 +39,7 @@ public class JvnObjectImpl implements JvnObject {
 		}
 	}                                                        
                                                              
-	synchronized public void jvnUnLock() throws JvnException {            
+	public void jvnUnLock() throws JvnException {            
 		switch(state){
 		case NL: throw new JvnException("Aucun verrou");
 		case R: state = Verrou.RC; break;
@@ -46,7 +48,8 @@ public class JvnObjectImpl implements JvnObject {
 		case WC: throw new JvnException("Verrou déjà libéré : écriture");
 		case RWC: state = Verrou.WC; break;
 		}
-		notify();
+		if(queue.availablePermits() == 0)
+			queue.release();
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -61,7 +64,7 @@ public class JvnObjectImpl implements JvnObject {
 		switch(state){
 		case R: 
 			try{
-				wait();
+				queue.acquire();
 				state = Verrou.NL; 
 			}catch(InterruptedException ie){
 				ie.printStackTrace();
@@ -83,7 +86,7 @@ public class JvnObjectImpl implements JvnObject {
 		case RC:throw new JvnException("Le verrou ne correspond pas à la demande : "+state);
 		case W:
 			try {
-				wait();
+				queue.acquire();
 				state = Verrou.NL;break;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -92,7 +95,7 @@ public class JvnObjectImpl implements JvnObject {
 		case WC: state = Verrou.NL; break;
 		case RWC: 
 			try {
-				wait();
+				queue.acquire();
 				state = Verrou.NL;break;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -106,7 +109,7 @@ public class JvnObjectImpl implements JvnObject {
 		switch(state){
 		case W: 
 			try {
-				wait();
+				queue.acquire();
 				state=Verrou.RC;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -116,7 +119,7 @@ public class JvnObjectImpl implements JvnObject {
 		case WC:state=Verrou.RC; break;
 		case RWC: 
 			try {
-				wait();
+				queue.acquire();
 				state=Verrou.RC;
 			} catch (InterruptedException e) {
 				e.printStackTrace();

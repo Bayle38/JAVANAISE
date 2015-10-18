@@ -40,10 +40,11 @@ public class Burst {
 		while(true){
 			Thread.sleep(100);
 			Random r = new Random();
-			if(r.nextInt(1)==0){
-				System.out.println(jo.read());
+			if(r.nextInt(2)==0){
+				i = Integer.parseInt(jo.read());
+				System.out.println();
 			}else{
-				jo.write("J'écris " + i++);
+				jo.write(""+ ++i);
 			}
 		}
 	   } catch (Exception e) {
