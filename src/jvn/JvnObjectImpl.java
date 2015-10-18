@@ -106,7 +106,7 @@ public class JvnObjectImpl implements JvnObject {
 		switch(state){
 		case W: 
 			try {
-				wait();
+				wait(500);
 				state=Verrou.RC;
 			} catch (InterruptedException e) {
 				e.printStackTrace();

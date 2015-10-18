@@ -10,17 +10,12 @@ package jvn;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-
 import jvn.JvnRemoteCoord;
 import jvn.DataStore;
-
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.io.Serializable;
-import java.lang.invoke.MethodHandles.Lookup;
 
 
 
@@ -31,10 +26,10 @@ public class JvnCoordImpl
 	//compteur pour les ID
 	private int id;
 	//table de correspondance nom symbolique-identifiant objet distant
-	private HashMap<String, Integer> tableNomId;
+	private ConcurrentHashMap<String, Integer> tableNomId;
 	//table de correspondance identifiant objet distant- DataStore correspondant
-	private HashMap<Integer, DataStore> tableIdData;
-
+	private ConcurrentHashMap<Integer, DataStore> tableIdData;
+	
   /**
   * Default constructor
   * @throws JvnException
@@ -45,12 +40,11 @@ public class JvnCoordImpl
 		
 		//initialisation des structures de données
 		id= 0;
-		tableNomId = new HashMap<>();
-		tableIdData = new HashMap<>();
+		tableNomId = new ConcurrentHashMap<>();
+		tableIdData = new ConcurrentHashMap<>();
 		
 		//passage d'une référence du coordinateur dans le rmiRegistry sous le nom "coord"
 		try{
-//			java.rmi.Naming.bind("coord", this);
 			reg.bind("coord", this);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -64,7 +58,6 @@ public class JvnCoordImpl
   **/
   public synchronized int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
-	  //int id = Integer.parseInt(UUID.randomUUID().toString())
 	  id++;
 	  System.out.println("Generate new ID : " + id);
 	  return id; 
@@ -121,51 +114,22 @@ public class JvnCoordImpl
   **/
    public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js)
    throws java.rmi.RemoteException, JvnException{
+	   
 	 //la resource existe-t-elle?
 	 if (tableIdData.containsKey(joi)){
-	 	//quel verrou est apposé sur la resource?
-	 	Verrou v= tableIdData.get(joi).getListeVerrouClients().getVerrou();
-	 	switch (v) {
-	 	case NL:
-	 		//verrou directement accordé
-	 		VerrouListeClients l= tableIdData.get(joi).getListeVerrouClients();
-	 		l.setVerrou(Verrou.R); //verrou en lecture
-	 		ArrayList<JvnRemoteServer> list= new ArrayList<>();
-	 		list.add(js);
-	 		l.setListeClients(list);
-	 		tableIdData.get(joi).setListeVerrouClients(l); //l'utilisateur est ajouté en tant que possésseur du verrou
-	 		
-	 		break;
-	 	case R:
-	 		//verrou compatible avec les autres verrous, mise à jour de la liste des clients ayant le verrou
-	 		ArrayList<JvnRemoteServer> liste= (tableIdData.get(joi).getListeVerrouClients().getListeClients());
-	 		liste.add(js);
-	 		tableIdData.get(joi).getListeVerrouClients().setListeClients(liste);
-	 		break;
-	 	case W:
-	 		//verrou incompatible, on invalide le verrou actuel (qui passe en lecture chez le posseseur actuel du verrou)
-	 		Serializable o= tableIdData.get(joi).getListeVerrouClients().getListeClients().get(0).jvnInvalidateWriterForReader(joi);
-	 		// mettre à jour la dernière version de l'objet
-	 		tableIdData.get(joi).setObjDistant(o);
-	 		//on change le verrou en lecture
-	 		VerrouListeClients vl= tableIdData.get(joi).getListeVerrouClients();
-	 		vl.setVerrou(Verrou.R);
-	 		//on ajoute le nouveau client à la liste des possésseurs du verrou
-	 		ArrayList<JvnRemoteServer> ll= vl.getListeClients();
-	 		ll.add(js);
-	 		vl.setListeClients(ll);
-	 		tableIdData.get(joi).setListeVerrouClients(vl);
-	 		break;
-	 	default:
-	 		//throw new JvnException("unhandled case");
-	 		break;
-	 	}
-
+	 	
+		ThreadLockRead thread= new ThreadLockRead(tableIdData, joi, js);
+		thread.start();
+		
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			
+		}
 	 	//on retourne l'objet sérialisable 
 	 	//on utilise pas jvnlookup car on devrais alors faire la correspondance entre une valeur (identifiant) et une clef (le nom symbolique)
 	 	//dans une hasmap (et non pas l'inverse) afin d'utiliser la fonction
- 		return (Serializable)tableIdData.get(joi).getObjDistant();
-	 			
+ 		return (Serializable)tableIdData.get(joi).getObjDistant();	 			
 	}else{
 	 	throw new JvnException("resource inexistante");		
 	 		}
@@ -182,59 +146,18 @@ public class JvnCoordImpl
    throws java.rmi.RemoteException, JvnException{
 	 //la resource existe-t-elle?
 		 if (tableIdData.containsKey(joi)){
-		 	//quel verrou est apposé sur la resource?
-		 	Verrou v= tableIdData.get(joi).getListeVerrouClients().getVerrou();
-		 	switch (v) {
-		 	case NL:
-		 		//verrou directement accordé
-		 		VerrouListeClients l= tableIdData.get(joi).getListeVerrouClients();
-		 		l.setVerrou(Verrou.W); //verrou en ecriture
-		 		ArrayList<JvnRemoteServer> list= new ArrayList<>();
-		 		list.add(js);
-		 		l.setListeClients(list);
-		 		tableIdData.get(joi).setListeVerrouClients(l); //l'utilisateur est ajouté en tant que possésseur du verrou
-		 		
-		 		break;
-		 	case R:
-		 		//verrou incompatible avec les autres verrous, on invalide le(s) verrou(s) actuel(s) et js devient seul possésseur du verrou
-		 		
-		 		//invalidation des verrous des clients de la liste
-		 		for (int i = 0; i < tableIdData.get(joi).getListeVerrouClients().getListeClients().size(); i++) {
-		 			tableIdData.get(joi).getListeVerrouClients().getListeClients().get(i).jvnInvalidateReader(joi);
-				}
-		 		//changement du verrou
-		 		VerrouListeClients l2= tableIdData.get(joi).getListeVerrouClients();
-		 		l2.setVerrou(Verrou.W);
-		 		//js devient le seul possésseur du verrou
-		 		ArrayList<JvnRemoteServer> list2= new ArrayList<>();
-		 		list2.add(js);
-		 		l2.setListeClients(list2);
-		 		tableIdData.get(joi).setListeVerrouClients(l2);
-		 		break;
-		 	case W:
-//verrou incompatible avec les autres verrous, on invalide le(s) verrou(s) actuel(s) et js devient seul possésseur du verrou
-		 		
-		 		//invalidation du verrou du client
-		 		Serializable o= tableIdData.get(joi).getListeVerrouClients().getListeClients().get(0).jvnInvalidateWriter(joi);
-		 		// mettre à jour la dernière version de l'objet
-		 		tableIdData.get(joi).setObjDistant(o);
-		 		//js devient le seul possésseur du verrou
-		 		VerrouListeClients l3= tableIdData.get(joi).getListeVerrouClients();
-		 		ArrayList<JvnRemoteServer> list3= new ArrayList<>();
-		 		list3.add(js);
-		 		l3.setListeClients(list3);
-		 		tableIdData.get(joi).setListeVerrouClients(l3);
-		 		break;
-		 	default:
-		 		//throw new JvnException("unhandled case");
-		 		break;
-		 	}
-
+			ThreadLockWrite thread= new ThreadLockWrite(tableIdData, joi, js);
+			thread.start();
+			
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				
+			}
 		 	//on retourne l'objet sérialisable
 		 	//on utilise pas jvnlookup car on devrais alors faire la correspondance entre une valeur (identifiant) et une clef (le nom symbolique)
 		 	//dans une hasmap (et non pas l'inverse) afin d'utiliser la fonction
-	 		return (Serializable)tableIdData.get(joi).getObjDistant();
-		 			
+	 		return (Serializable)tableIdData.get(joi).getObjDistant();		 			
 		}else{
 		 	throw new JvnException("resource inexistante");		
 		 		}
@@ -259,6 +182,7 @@ public class JvnCoordImpl
     	if (L.contains(js)){ //retirer le server de la liste
     		if (tableIdData.get((int)s[i]).getListeVerrouClients().getVerrou() == Verrou.W){
     			//verrou en lecture, récupérer la dernière version de l'objet
+    			//TODO g�rer le cas o� le client devient innaccessible ou r�pond trop lentement
     			Serializable o= js.jvnInvalidateWriter((int)s[i]);
     			tableIdData.get((int)s[i]).setObjDistant(o);
     		}
