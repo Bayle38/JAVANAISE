@@ -9,7 +9,17 @@ qui observe ou modifie l'état de l'objet doivent être annotées à l'aide de l
 En cas d'écriture @Operation(type="write") et en cas de lecture @Operation(type="read").
 
 
-	
+Installation guide:
+  As the software is designed to be run only on your local machine, you don't need any installation and only have to launch the different programs.
+
+Compilling:
+
+How to run it:
+	First, run the server implemented by the jvnCoordImpl: java jvnCoorImpl.jar.
+	Second, run as many clients as you need, each time using the "java IRC2.jar" command
+	Remember that all the clients need the server to run in order to work. Only one instance of the server can be run at a time.
+
+
 	
 	
 	
