@@ -15,9 +15,11 @@ Installation guide:
 Compilling:
 
 How to run it:
-	First, run the server implemented by the jvnCoordImpl: java jvnCoorImpl.jar.
-	Second, run as many clients as you need, each time using the "java IRC2.jar" command
+	First, run the server implemented by the jvnCoordImpl: java CoorIRC.jar.
+	Second, run as many clients as you need, each time using the "java IRC2.jar" command.
 	Remember that all the clients need the server to run in order to work. Only one instance of the server can be run at a time.
+	Plus the object you want to transmit between the clients must implement an interface that extends the class Serializable. In addition, this object's interface must have annotations on its methods ( @Operation(type="write") for a write operation and @Operation(type="read") for a read operation).
+	By default, the server application (coordinator) and client application use the port n°2015.
 
 
 	
